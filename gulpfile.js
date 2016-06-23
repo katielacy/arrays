@@ -1,4 +1,5 @@
 // Plugins
+require('es6-promise').polyfill();
 var gulp = require('gulp'),
 
     // Styles
@@ -13,10 +14,6 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     include = require('gulp-include'),
 
-    // Images
-    imagemin = require('gulp-imagemin'),
-    pngquant = require('imagemin-pngquant'),
-
     // Other
     util = require('gulp-util'),
     del = require('del'),
@@ -24,9 +21,9 @@ var gulp = require('gulp'),
     notifier = require('node-notifier'),
     merge = require('merge-stream'),
     sequence = require('run-sequence'),
-    combinemq = require('gulp-combine-mq'),
-    ftp = require('vinyl-ftp'),
-    hostconfig = require('./hostconfig.json');
+    combinemq = require('gulp-combine-mq');
+
+
 
 // Errors
 var logErrors = function (error) {
@@ -54,7 +51,6 @@ gulp.task('styles', function() {
         .pipe(sass({sourceComments: 'normal'}))
         .on('error', logErrors)
         .pipe(autoprefix({browsers: 'last 4 versions'}))
-        .pipe(combinemq())
         .pipe(production ? minify() : util.noop())
         .pipe(rename({suffix: '.min'}))
         .pipe(gulp.dest('assets/css'))
@@ -73,17 +69,6 @@ gulp.task('scripts', function() {
         .pipe(gulp.dest('assets/js'));
 });
 
-// Images
-gulp.task('images', function(){
-    return gulp.src('assets/img/**/*')
-        .pipe(imagemin({
-            progressive: true,
-            svgoPlugins: [{removeViewBox: false}],
-            use: [pngquant()]
-        }))
-        .pipe(gulp.dest('assets/img'));
-});
-
 // Watch
 gulp.task('watch', function() {
     gulp.watch('assets/sass/**/*.scss', ['styles']);
@@ -92,7 +77,6 @@ gulp.task('watch', function() {
 
 // Default
 gulp.task('default', function(callback) {
-
     sequence(
         ['styles', 'scripts'],
         'watch',
@@ -128,58 +112,7 @@ var build = {
 }
 
 // Build task
-gulp.task('build', ['styles', 'scripts', 'images'], function() {
+gulp.task('build', ['styles', 'scripts' ], function() {
     gulp.src(build.files, {base: '.'})
         .pipe(gulp.dest('_build'));
 });
-
-/* -------------------------
-    Deployment
-------------------------- */
-
-var deployment = {
-
-    dev: {
-        host: hostconfig.dev.host,
-        user: hostconfig.dev.user,
-        password: hostconfig.dev.password,
-        destination: hostconfig.dev.destination,
-        log: util.log
-    },
-
-    production: {
-        host: hostconfig.production.host,
-        user: hostconfig.production.user,
-        password: hostconfig.production.password,
-        destination: hostconfig.production.destination,
-        log: util.log
-    }
-
-}
-
-// Deploy task
-gulp.task('deploy', ['styles', 'scripts', 'images'], function() {
-
-    // Must run with flag to define environment [dev|production]
-    if(util.env.production) {
-        env = 'production';
-    } else if(util.env.dev) {
-        env = 'dev';
-    } else {
-        throw new util.PluginError({
-            plugin: 'Environment',
-            message: 'Please define development environment (dev|production)'
-        });
-    }
-
-    var stream = gulp.src(build.files, { base: '.', buffer: false }),
-        config = deployment[env],
-        conn = ftp.create(config);
-
-    stream = stream
-        .pipe(conn.newer(config.destination))
-        .pipe(conn.dest(config.destination));
-
-    return stream;
-
-})

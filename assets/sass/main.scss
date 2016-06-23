@@ -1,24 +1,44 @@
-@import "vendor/jeet/index";
-@import "vendor/font-awesome";
+/*
+ * Material Design for Bootstrap 4
+ * Version: MDB FREE 4.0.0
+ */
 
-@import "utils/variables";
-@import "utils/theme";
-@import "utils/functions";
-@import "utils/mixins";
-@import "utils/helpers";
+@charset "UTF-8";
 
-@import "base/reset";
-@import "base/typography";
 
-@import "partials/layout";
-@import "partials/navigation";
-@import "partials/header";
-@import "partials/footer";
 
-@import "components/buttons";
-@import "components/forms";
-@import "components/lists";
-@import "components/tables";
-@import "components/alerts";
 
-@import "pages/home";
+// MDB Framework //
+
+// Mixins
+@import "mdb/data/prefixer";
+@import "mdb/data/mixins";
+
+// Variables
+@import "mdb/data/colors";
+@import "mdb/data/variables-b4";
+@import "mdb/data/variables";
+
+//Global
+@import "mdb/global";
+
+// MDB Free  
+@import "mdb/roboto";
+@import "mdb/typography";
+@import "mdb/animations";
+@import "mdb/waves";
+@import "mdb/helpers";
+@import "mdb/buttons";
+@import "mdb/forms-basic";
+@import "mdb/cards-basic";
+@import "mdb/navbars";
+@import "mdb/hover-effects";
+@import "mdb/footer";
+@import "mdb/carousels-basic";
+   
+ 
+
+
+
+
+ 
